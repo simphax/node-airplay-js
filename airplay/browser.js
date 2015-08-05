@@ -33,58 +33,33 @@ Browser.prototype.init = function ( options ) {
     this.devices = {};
     this.addresses = []
 
-    //var mdnsBrowser = new mdns.Mdns(mdns.tcp('airport'));
-    var browser = new mdns.createBrowser(mdns.tcp('airplay'));
-    //var legacyMdnsBrowser = new mdns.Mdns(mdns.tcp('airplay'));
-
-    var mdnsOnUpdate = function(data) {
-        if(data.port && data.port == 7000 && self.addresses.indexOf(data.addresses[0]) < 0){
-            var info = data.addresses
-            var name = data.fullname
-            self.addresses.push(data.addresses[0])
-            /*
-            if ( !self.isValid( info ) ) {
-                return;
-            }
-
-            var device = self.getDevice( info );
-            if ( device ) {
-                return;
-            }
-            */
-            //if(info.length && name){
-                device = new Device( nextDeviceId++, info , name );
-                device.on( 'ready', function( d ) {
-                    self.emit( 'deviceOn', d );
-                });
-                device.on( 'close', function( d ) {
-                    delete self.devices[ d.id ];
-                    self.emit( 'deviceOff', d );
-                });
-
-                self.devices[ device.id ] = device;
-            //}else{
-            //    console.log("Error adding device: "+JSON.stringify(data))
-            //}
-        }
-    };
-
-    //mdnsBrowser.on('ready', function () {
-    //        mdnsBrowser.discover();
-    //});
+    var browser = mdns.createBrowser(mdns.tcp('airplay'));
 
     browser.on('ready', function () {
-            browser.discover();
-            setInterval(function(){
-                browser.discover();
-            },3000)
+        browser.discover();
     });
 
-    //mdnsBrowser.on('update', mdnsOnUpdate);
-    browser.on('update', mdnsOnUpdate);
-    /*
-    this.browser.on( 'serviceDown', function( info ) {
-        if ( !self.isValid( info ) ) {
+    browser.on('serviceUp', function(data) {
+        if(data.port && data.port == 7000 && self.addresses.indexOf(data.address) < 0){
+            var info = [data.address]
+            var name = data.name
+            self.addresses.push(data.address)
+            
+            device = new Device( nextDeviceId++, info , name );
+            device.on( 'ready', function( d ) {
+                self.emit( 'deviceOn', d );
+            });
+            device.on( 'close', function( d ) {
+                delete self.devices[ d.id ];
+                self.emit( 'deviceOff', d );
+            });
+
+            self.devices[ device.id ] = device;
+        }
+    });
+
+    browser.on('serviceDown', function(info) {
+      if ( !self.isValid( info ) ) {
             return;
         }
 
@@ -92,17 +67,15 @@ Browser.prototype.init = function ( options ) {
         if ( device ) {
             device.close();
         }
-    });*/
+    });
 };
 
 Browser.prototype.start = function () {
-    //this.browser.start();
     this.emit( 'start' );
     return this;
 };
 
 Browser.prototype.stop = function() {
-    this.browser.stop();
     this.emit( 'stop' );
     return this;
 };
