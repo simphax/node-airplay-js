@@ -252,7 +252,7 @@ HLSServer.prototype.command4FFMpeg = function ( tsIndex, tsOutput ) {
     if ( isH264 ) {
         opt = opt.concat([
             '-c:v', 'libx264', // libx264 || copy
-            '-c:a', 'aac', // aac || copy
+            '-c:a', 'ac3', // aac || copy
             '-strict', '-2',
             '-vbsf', 'h264_mp4toannexb'
         ]);
@@ -260,14 +260,14 @@ HLSServer.prototype.command4FFMpeg = function ( tsIndex, tsOutput ) {
     else {
         opt = opt.concat([
             '-c:v', 'linx264',
-            '-c:a', 'aac',
+            '-c:a', 'ac3',
             // '-g', 100,
             // '-vcodec', 'copy',
             // '-acodec', 'copy',
             '-b', '500k',
-            '-ac', '2',
-            '-ar', '44100',
-            '-ab', '32k'
+            //'-ac', '2',
+            //'-ar', '44100',
+            //'-ab', '32k'
         ]);
     }
 
